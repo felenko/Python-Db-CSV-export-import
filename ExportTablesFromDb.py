@@ -59,7 +59,7 @@ while index < len(tablenames) :
     q = queries[index]
     tablename = tablenames[index]
     print(q)
-    outfile = open(f'{databaseName}.dbo.{tablename}.csv', 'w')
+    outfile = open(f'{databaseName}.dbo.{tablename}.csv', 'w', newline='')
     outcsv = csv.writer(outfile)
     columnnames = connection.execute(f"select column_name from information_schema.columns where table_name = '{tablename}'")
     columns = []
@@ -67,9 +67,14 @@ while index < len(tablenames) :
         columns.append(c[0].strip("'").strip("'"))
     cursor = connection.execute(q)
     rows = cursor.fetchall();
+    outcsv.writerow(columns)
+    for row in rows:
+       rowAsList = [x for x in row]
+       bitsReplaced = list(map(lambda x:int(x) if type(x)==bool else x,rowAsList))
+       outcsv.writerow(bitsReplaced)
     # dump column titles (optional)
     "select column_name from information_schema.columns where table_name = 'Your_table_name'"
-    outcsv.writerow(columns)
+
     # dump rows
-    outcsv.writerows(rows)
+
     index = index + 1
